@@ -1,0 +1,89 @@
+npm i -g ts-node
+nodemon --watch backend --exec "ts-node" backend/server.ts
+
+ng build --prod --extract-css=false (aplicar o css via javascript por cause de um bug do angular-cli)
+
+Gerar arquivo .pem
+	https://www.novidades100.com.br/dicas/certificados-digitais.php
+	https://docs.vmware.com/br/Unified-Access-Gateway/2.9/com.vmware.access-point-29-deploy-config/GUID-870AF51F-AB37-4D6C-B9F5-4BFEB18F11E9.html
+	https://www.webdanfe.com.br/certificados/manual/Manual-exportacao-do-certificado-A1-para-pfx.php
+	http://www.cavalcantetreinamentos.com.br/blog/material-sala-de-aula/Seguranca%20em%20Redes/Outros/Comandos%20OpenSSL.txt
+
+openssl genrsa -des3 -out c:\ca.key 1024
+req -x509 -days 3650 -config c:\openssl\apps\openssl.cnf -new -key c:\ca.key -out c:\certificado.cer
+pkcs12 -export -out c:\certificado.pfx -in c:\certificado.cer -inkey c:\ca.key -name "MinhaEmpresa"
+openssl pkcs12 -in mycaservercert.pfx -nokeys -out mycaservercert.pem
+openssl pkcs12 -in mycaservercert.pfx -nodes -nocerts -out mycaservercertkey.pem
+openssl rsa -in mycaservercertkey.pem -check -out mycaservercertkeyrsa.pem
+
+
+
+
+*************************
+https://servidordebian.org/pt/squeeze/intranet/ssl_cert/self_signed
+
+Chave privada: openssl genrsa -des3 -out server.key 2048
+
+Chave privada sem password: openssl rsa -in server.key -out server.key.insecure
+
+Pedido de certificação: openssl req -new -key server.key -out server.csr
+
+	Obs: no campo Common Name deverá ser indicado o nome do servidor para o qual 
+	     está a ser gerado o certificado. Caso se pretenda um certificado para vários 
+	     servidores no mesmo domínio pode-se usar a sintaxe *.home.lan
+	***********************
+		Country Name (2 letter code) [AU]:PT
+		State or Province Name (full name) [Some-State]:Portugal
+		Locality Name (eg, city) []:
+		Organization Name (eg, company) [Internet Widgits Pty Ltd]:Home Lan
+		Organizational Unit Name (eg, section) []:
+		Common Name (eg, YOUR name) []:*.home.lan
+		Email Address []:
+
+		Please enter the following 'extra' attributes
+		to be sent with your certificate request
+		A challenge password []:
+		An optional company name []:
+	***********************
+
+Certificado auto-assinado .crt ou .cer: openssl x509 -req -days 365 -in server.csr -signkey server.key -out server.crt
+
+	Obs: O pedido de certificado deveria ser enviado para a entidade certificadora, 
+	     que devolveria o certificado assinado. Neste caso, será usado para 
+	     criar um certificado auto-assinado (Self-Signed Certificate), válido por 365 dias.
+	***********************
+		Signature ok
+		subject=/C=PT/ST=Portugal/O=Home Lan/CN=*.home.lan
+		Getting Private key
+		Enter pass phrase for server.key:
+	***********************
+		server.key 		A chave privada
+		server.key.insecure 	A chave privada sem password
+		server.csr 		O pedido de assinatura do certificação
+		server.crt 		O certificado auto-assinado. 
+	***********************
+		O certificado auto-assinado é válido por 365 dias. No entanto, este pode ser renovado em 
+		qualquer altura, bastando para tal regenerar o certificado auto-assinado. 
+	***********************
+
+Exportar os arquivos .key e .crt para um arquivo .p12(padrão windows) ou .pfx: openssl pkcs12 -export -in server.crt -inkey server.key -out server.p12
+
+	***********************
+		Enter pass phrase for server.key:
+		Enter Export Password:
+		Verifying - Enter Export Password:
+	***********************
+
+Converter um arquivo .p12 para um arquivo .pem: openssl pkcs12 -in server.p12 -out server.pem -nodes
+
+	openssl pkcs12 -in server.p12 -nokeys -out cert.pem
+	openssl pkcs12 -in server.p12 -nodes -nocerts -out key.pem
+	openssl rsa -in key.pem -check -out certkeyrsa.pem
+
+	***********************
+		Arquivo de certificado codificado em Base64 usado para autenticar um site seguro. 
+		Normalmente, é importado de um servidor Web Apache baseado em Unix.
+		
+		Para utilizar a API REST do Unified Access Gateway para configurar definições de certificado 
+		ou para utilizar os scripts do PowerShell.
+	***********************
