@@ -87,3 +87,17 @@ Converter um arquivo .p12 para um arquivo .pem: openssl pkcs12 -in server.p12 -o
 		Para utilizar a API REST do Unified Access Gateway para configurar definições de certificado 
 		ou para utilizar os scripts do PowerShell.
 	***********************
+
+
+
+
+
+
+openssl genrsa -out key.pem 1024
+openssl req -newkey rsa:1024 -new -key key.pem -out csr.pem
+openssl x509 -req -days 9999 -in csr.pem -signkey key.pem -out cert.pem
+rm csr.pem
+
+Usar o comando:
+
+ng serve --ssl true --ssl-key certificate/key.pem --ssl-cert certificate/cert.pem
